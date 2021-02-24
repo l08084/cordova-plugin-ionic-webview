@@ -169,4 +169,35 @@ public class IonicWebViewEngine extends SystemWebViewEngine {
   public String getServerBasePath() {
     return this.localServer.getBasePath();
   }
+
+  /**
+   * キャッシュファイルを削除する処理。
+   *
+   */
+  private void clearCacheFolder (File dir) {
+    if (dir != null && dir.isDirectory()) {
+      try {
+        for (File child : dir.listFiles()) {
+          if (child.isDirectory()) {
+            clearCacheFolder(child);
+          }
+          child.delete();
+        }
+      } catch (Exception ex) {
+        Log.e(TAG, "Failed to clean the cache, error", ex);
+      }
+    }
+  }
+
+  /**
+   * アプリを閉じたときに呼び出されるライフサイクルメソッド。
+   * キャッシュファイルの削除処理を呼び出している。
+   *
+   */
+  @Override
+  public void destroy() {
+    super.destroy();
+    File cacheDir = cordova.getActivity().getApplicationContext().getCacheDir();
+    clearCacheFolder(cacheDir);
+  }
 }
